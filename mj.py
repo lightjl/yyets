@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import checkDownloaded
 import account
+import WorkInTime
 
 header = {
     'Connection': 'Keep-Alive',
@@ -33,7 +34,7 @@ def loginAndDownload():  # 登陆函数
     f = login_seesion.get(url, headers=header)
     #print(f.content.decode())
 
-    soup = BeautifulSoup(f.content.decode())
+    soup = BeautifulSoup(f.content.decode(), "html.parser")
     #print(soup.prettify())
 
     # 第一次运行添加这两个文件
@@ -43,7 +44,6 @@ def loginAndDownload():  # 登陆函数
         #print(type(link))
         #print(link.attrs)
         if link['href'] not in downloaded:
-            print('not in')
             print(link['href'])
             file_object.write(link['href']+'\n')
             fileNewDownload.write(link['href']+'\n')
@@ -51,5 +51,10 @@ def loginAndDownload():  # 登陆函数
     fileNewDownload.close()
     print('well done')
 
-downloaded = checkDownloaded.checkDownloaded()
-loginAndDownload()
+timeBucket =[['12:30']*2]
+workTime = WorkInTime.WorkInTime(timeBucket)
+print("追剧正在进行")
+while True:
+    downloaded = checkDownloaded.checkDownloaded()
+    loginAndDownload()
+    workTime.relax()
