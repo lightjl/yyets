@@ -2,34 +2,36 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import checkDownloaded
-import account
 import WorkInTime
+import account
 
+def Get_Session(URL,DATA,HEADERS):
+    '''保存登录参数'''
+    ROOM_SESSION  = requests.Session()
+    ROOM_SESSION.post(URL,data=DATA,headers=HEADERS)
+    return ROOM_SESSION
 
 def loginAndDownload():  # 登陆函数
 
     header = {
-        'Connection': 'Keep-Alive',
-        'Accept': 'application/json, text/javascript, */*',
-        'Accept-Language': 'zh-CN;q=0.01',
-        'User-Agent': 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; Tablet PC 2.0)',
-        'Accept-Encoding': 'gzip, deflate',
-        'Host': 'www.zmz2017.com',
-        'DNT': '1',
-        'Cookie': 'PHPSESSID=10uqu72lv57jhl9l58okiei1n1; GINFO=uid%3D3560304%26nickname%3Dlojl%26group_id%3D1%26avatar_t%3Dhttp%3A%2F%2Ftu.zmzjstu.com%2Fftp%2Favatar%2Ff_noavatar_t.gif%26main_group_id%3D0%26common_group_id%3D59; GKEY=ef12f18badab1ad2a170d894c20aee44'
+        'Accept':'application/json, text/javascript, */*; q=0.01',
+        'Origin':'http://www.zimuzu.tv',
+        'X-Requested-With':'XMLHttpRequest',
+        'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36',
+        'Content-Type': 'application/x-www-form-urlencoded',
     }
-    url = 'http://www.zmz2017.com/User/Login/ajaxLogin'
 
-    login_seesion = requests.Session()
-    '''
-    login_seesion.post(url,
-                       data=account.postData233,
-                       headers=header)
+    url = 'http://www.zimuzu.tv/User/Login/ajaxLogin'
 
-    print(login_seesion.cookies)
-    '''
+    login_session = requests.Session()
+    login_session.post(url,
+           data=account.postData233,
+           headers=header)
+    _cookies = (login_session.cookies)
+    #print(login_session.status_code)
+    #print(_cookies.get_dict())
     url = 'http://www.zimuzu.tv/user/fav'
-    f = login_seesion.get(url, headers=header)
+    f = login_session.get(url)
     #print(f.content.decode())
 
     soup = BeautifulSoup(f.content.decode(), "html.parser")
@@ -41,6 +43,7 @@ def loginAndDownload():  # 登陆函数
     for link in soup.find_all(href=re.compile("ed2k")):
         #print(type(link))
         #print(link.attrs)
+        #print(link['href'])
         if link['href'] not in downloaded:
             print(link['href'])
             file_object.write(link['href']+'\n')
